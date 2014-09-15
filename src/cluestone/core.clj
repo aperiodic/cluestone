@@ -84,7 +84,8 @@
   []
   (->> (get-ktk-cards!)
     keywordize-rarities
-    (map #(rename-keys % {:title :name, :colour :color}))))
+    (map #(rename-keys % {:title :name, :colour :color}))
+    (map #(update-in % [:color] color-str->color-kw))))
 
 (defn make-pack
   [set-cards]
@@ -116,6 +117,7 @@
    :headers {"Content-Type" "text/html"}
    :body (cards->page (->> (random-sealed-pool (ktk-cards!))
                         (sort-by :name)
+                        stable-color-sort
                         (pull-by-name-pred #(re-find #"Banner$" %))
                         (pull-cards ["Bloodstained Mire"
                                      "Flooded Strand"
@@ -135,8 +137,7 @@
                                      "Swiftwater Cliffs"
                                      "Jungle Hollow"
                                      "Wind-Scarred Crag"
-                                     "Thornwood Falls"
-                                     ])
+                                     "Thornwood Falls"])
                         stable-rare-first-sort))})
 
 (comment
