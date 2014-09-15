@@ -44,9 +44,15 @@
 
 (defn stable-rare-first-sort
   [cards]
-  (->> (for [rarity (reverse rarities)]
-         (select-rarity rarity cards))
-    (apply concat)))
+  (mapcat #(select-rarity % cards) (reverse rarities)))
+
+(defn select-color
+  [color cards]
+  (filter #(= (:color %) color) cards))
+
+(defn stable-color-sort
+  [cards]
+  (mapcat #(select-color % cards) colors))
 
 (defn pull-by-card-pred
   [pred cards]
