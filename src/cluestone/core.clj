@@ -6,16 +6,27 @@
             [hiccup.core :refer [html]]
             [hiccup.page :refer [html5]]))
 
+(def rarities [:common :uncommon :rare :mythic])
+(def rarity->index (zipmap rarities (range)))
+
 (def rarity-str->rarity-kw
   {"c" :common
    "u" :uncommon
    "r" :rare
    "m" :mythic})
 
-(def rarity->index
-  {:common 0, :uncommon 1, :rare 2, :mythic 3})
+(def colors [:gold :white :blue :black :red :green :colorless :land])
+(def color->index (zipmap colors (range)))
 
-(def rarities [:common :uncommon :rare :mythic])
+(def color-str->color-kw
+  {"m" :gold
+   "w" :white
+   "u" :blue
+   "b" :black
+   "r" :red
+   "g" :green
+   "a" :colorless
+   "l" :land})
 
 (defn keywordize-rarities
   [cards]
