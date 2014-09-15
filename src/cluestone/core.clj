@@ -21,6 +21,38 @@
   [cards]
   (map #(update-in % [:rarity] rarity-str->rarity-kw) cards))
 
+(defn rares-first
+  "Compare cards by rarity such that rares end up first."
+  [{a :rarity} {b :rarity}]
+  (-> (and a b (> (rarity->index a) (rarity->index b)))
+    boolean))
+
+(defn select-rarity
+  [rarity cards]
+  (filter #(= (:rarity %) rarity) cards))
+
+(defn stable-rare-first-sort
+  [cards]
+  (->> (for [rarity (reverse rarities)]
+         (select-rarity rarity cards))
+    (apply concat)))
+
+(defn pull-by-card-pred
+  [pred cards]
+  (->> cards
+    ((juxt (partial filter pred) (partial remove pred)))
+    (apply concat)))
+
+(defn pull-by-name-pred
+  [pred cards]
+  (pull-by-card-pred #(pred (:name %)) cards))
+
+(defn pull-cards
+  [names cards]
+  (let [name-set (set names)
+        card-pred #(contains? name-set (:name %))]
+    (pull-by-card-pred card-pred cards)))
+
 (def ktk-url "http://copper-dog.com/mtg-generator/ktk/")
 (def ktk-cards-url "http://copper-dog.com/mtg-generator/ktk/cardsMain.json")
 
@@ -61,23 +93,43 @@
   (html5 {}
     [:body (map card->img cards)]))
 
-(defn rares-first
-  "Compare cards by rarity such that rares end up first."
-  [{a :rarity} {b :rarity}]
-  (-> (and a b (> (rarity->index a) (rarity->index b)))
-    boolean))
-
 (defn random-ktk-sealed-pool-handler
   [_]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (cards->page (->> (random-sealed-pool (ktk-cards!))
-                        (sort rares-first)))})
+                        (sort-by :name)
+                        (pull-by-name-pred #(re-find #"Banner$" %))
+                        (pull-cards ["Bloodstained Mire"
+                                     "Flooded Strand"
+                                     "Polluted Delta"
+                                     "Windswept Heath"
+                                     "Sandsteppe Citadel"
+                                     "Mystic Monastery"
+                                     "Opulent Palace"
+                                     "Nomad Outpost"
+                                     "Frontier Bivouac"
+                                     "Tranquil Cove"
+                                     "Dismal Backwater"
+                                     "Bloodfell Caves"
+                                     "Rugged Highlands"
+                                     "Blossoming Sands"
+                                     "Scoured Barrens"
+                                     "Swiftwater Cliffs"
+                                     "Jungle Hollow"
+                                     "Wind-Scarred Crag"
+                                     "Thornwood Falls"
+                                     ])
+                        stable-rare-first-sort))})
 
 (comment
   (require '[cluestone.core :as mtg])
 
   (def ktk (mtg/ktk-cards!))
+
+  (->> (random-sealed-pool ktk)
+    (sort-by :name)
+    stable-rare-first-sort)
 
   (into {} (for [[rarity cards] (group-by :rarity ktk)]
              [rarity (count cards)]))
@@ -95,4 +147,11 @@
     (apply concat)
     (sort mtg/rares-first)
     mtg/cards->page
-    (spit (str (gensym "./ktk-sealed-") ".html"))))
+    (spit (str (gensym "./ktk-sealed-") ".html")))
+
+  ;; ktk sealed pool sorting
+  (->> (random-sealed-pool ktk)
+    (sort-by :name)
+    (pull-by-name-pred #(re-find #"Banner$" %))
+    )
+  )
