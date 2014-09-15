@@ -7,4 +7,6 @@
                  [cheshire "5.3.1"]
                  [clj-http "1.0.0"]
                  [enlive "1.1.5"]
-                 [hiccup "1.0.5"]])
+                 [hiccup "1.0.5"]]
+  :plugins  [[lein-ring "0.8.11"]]
+  :ring {:handler cluestone.core/random-ktk-sealed-pool-handler})

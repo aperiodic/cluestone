@@ -2,7 +2,16 @@
 
 If you like clojure and Magic: the Gathering, then you're in luck!
 
-## Tell me more
+## Cut to the chase!
+
+Start a webserver that generates Khans of Tarkir sealed pools as printable webpages by cloning this repo and then running
+```clj
+lein ring server
+```
+
+It should open up in your browser, but if not you can find it at `http://localhost:3000`.
+
+## Tell me more...
 
 I mean, if you are able to like those things then your life is pretty good already.
 Anyways, *this library* is just something I threw together in half an hour in order to generate Khans of Tarkir sealed pools to print out and proxy up.

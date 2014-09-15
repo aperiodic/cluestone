@@ -31,10 +31,6 @@
 
 (def get-ktk-cards! (memoize get-ktk-cards!*))
 
-(defmacro comp->
-  [& fns]
-  `(comp ~@(reverse fns)))
-
 (defn ktk-cards!
   []
   (->> (get-ktk-cards!)
@@ -51,6 +47,11 @@
             (take 3 (shuffle uncommons))
             (take 10 (shuffle commons)))))
 
+(defn random-sealed-pool
+  [set-cards]
+  (->> (take 6 (repeatedly #(make-pack set-cards)))
+    (apply concat)))
+
 (defn card->img
   [{:keys [src]}]
   [:span.card [:img {:width "222" :height "319" :src src}]])
@@ -65,6 +66,13 @@
   [{a :rarity} {b :rarity}]
   (-> (and a b (> (rarity->index a) (rarity->index b)))
     boolean))
+
+(defn random-ktk-sealed-pool-handler
+  [_]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (cards->page (->> (random-sealed-pool (ktk-cards!))
+                        (sort rares-first)))})
 
 (comment
   (require '[cluestone.core :as mtg])
