@@ -70,8 +70,8 @@
         card-pred #(contains? name-set (:name %))]
     (pull-by-card-pred card-pred cards)))
 
-(def ktk-url "http://copper-dog.com/mtg-generator/ktk/")
-(def ktk-cards-url "http://copper-dog.com/mtg-generator/ktk/cardsMain.json")
+(def ktk-url "http://mtgen.net/mtg-generator/ktk/")
+(def ktk-cards-url "http://mtgen.net/Content/ktk/cardsMain.json")
 
 (defn get-ktk-cards!* []
   (-> (http/get ktk-cards-url)
